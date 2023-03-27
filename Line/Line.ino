@@ -4,7 +4,7 @@
 
 // #define MOVING_SPEED 60
 
-int MOVING_SPEED = 60;
+int MOVING_SPEED = 90;
 
 // 0 : left_most
 // 1 : left
@@ -84,7 +84,11 @@ void work() {
     // counterLeft++;
     // if(counterLeft>=500){
     //     counterLeft=0;
-        moveLeft();  
+    // delay(10);
+        moveRightError();  
+        // while(detect_black(left_near) || detect_black(right_near)){
+        //   // readSensors();
+        // }
     // }
     // moveForward();
   }
@@ -94,7 +98,12 @@ void work() {
     // counterRight++;
     // if(counterRight>=500){
     //     counterRight=0;
-        moveRight(); 
+    // delay(10);
+
+        moveLeftError(); 
+        // while(detect_black(left_near) || detect_black(right_near)){
+        //   // readSensors();
+        // }
     // }
     // moveForward();
 
@@ -111,10 +120,10 @@ void work() {
 }
 
 void moveForward() {
-   analogWrite(enA, MOVING_SPEED);
+   analogWrite(enA, MOVING_SPEED+15);
   digitalWrite(in1, LOW);
   digitalWrite(in2, HIGH);
-  analogWrite(enB, MOVING_SPEED);
+  analogWrite(enB, MOVING_SPEED+15);
   digitalWrite(in3, LOW);
   digitalWrite(in4, HIGH);
 }
@@ -132,13 +141,32 @@ void moveRight() {
   analogWrite(enA, MOVING_SPEED);
   analogWrite(enB, 0);
   digitalWrite(in3, LOW);
-  digitalWrite(in4, LOW);
+  digitalWrite(in4, HIGH);
   
 }
+void moveRightError() {
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  analogWrite(enA, MOVING_SPEED-40);
+  analogWrite(enB, 0);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);  
 
+
+}
+void moveLeftError() {
+  analogWrite(enA, 0);
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  analogWrite(enB, MOVING_SPEED-40);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+  
+
+}
 void moveLeft() {
   digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);
+  digitalWrite(in2, HIGH);
   analogWrite(enA, 0);
   analogWrite(enB, MOVING_SPEED);
   digitalWrite(in3, LOW);
@@ -184,6 +212,7 @@ void setup() {
 
 
 void loop() {
+  // moveLeft();
   // Serial.println('left : ');
   // Serial.println(detect_black(right_far));
   // Serial.println(detect_black(left_near));
@@ -200,8 +229,8 @@ void loop() {
 // delay(1000);
 
   // readSensors();
-// work();
-  Serial.println(detect_black(left_far));
+work();
+  // Serial.println(detect_black(left_far));
   // Serial.println(detect_black(right_near));
 // 
   // Serial.print(detect_black(left_near));
