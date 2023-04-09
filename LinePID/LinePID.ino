@@ -1,51 +1,35 @@
 #include <avr/io.h>
 #include <util/delay.h>
-float Kp = 25;
-float Ki = 0;
-float Kd = 15;
 
-float error = 0, P = 0, I = 0, D = 0, PID_value = 0;
-float previous_error = 0, previous_I = 0;
 
-int flag = 0;
-// #define MOVING_SPEED 60
 
-int MOVING_SPEED = 60;
-
-//Initial Speed of Motor
-int initial_motor_speed = 140;
-
-// 0 : left_most
-// 1 : left
-// 2 : front
-// 3 : back
-// 4 : right
-// 5 : right_most
-#define left_far  PC2
+// Sensors pins
+// #define left_far  PC2
 #define left_near PC3
-#define right_far PC1
+// #define right_far PC1
 #define right_near PC4
 #define center PC5
 
 #define threshold 500
 uint8_t ADC_end = 0;
 uint16_t adc_value = 0;
-// sensors
 
+// motors
 int enA = 10;
-int in1 = 9; // left
+int in1 = 9;
 int in2 = 8;
 int enB = 3;
-int in4 = 4;  //right
+int in4 = 4;
 int in3 = 5;
-uint8_t black = 1;
 
-//0 --> left far
-//1 --> left near
-//2 --> right near
-//3 --> right far
-//1 --> black
-//0 --> white
+uint8_t black = 1;
+int sensor_reads[3];
+int last_error = 0;
+float Kp = 0, Ki = 0, Kd = 0;
+int forward_speed = 110;
+const MAX_SPEED = 200;
+const MIN_SPEED = 80;
+
 
 void adc_init()
 {
@@ -55,26 +39,17 @@ ADMUX = (1<<REFS0);
 ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
 }
 
-uint16_t adc_read(uint8_t ch)
-{
-// select the corresponding channel 0~5
-// ANDing with ’7′ will always keep the value
-// of ‘ch’ between 0 and 5
-ch &= 0b00000111; // AND operation with 7
-ADMUX = (ADMUX & 0xF8)|ch; // clears the bottom 3 bits before ORing
-// start single conversion
-// write ’1′ to ADSC
-ADCSRA |= (1<<ADSC);
-// wait for conversion to complete
-// ADSC becomes ’0′ again
-// till then, run loop continuously
-while(ADCSRA & (1<<ADSC));
-return (ADC);
+uint16_t adc_read(uint8_t ch){
+    ch &= 0b00000111;
+    ADMUX = (ADMUX & 0xF8)|ch;
+    ADCSRA |= (1<<ADSC);
+    while(ADCSRA & (1<<ADSC));
+    return (ADC);
 }
 
-int detect_black(uint8_t pin) {
-  adc_value = adc_read(pin);
-  if (adc_value != -1) {
+int detect_black(uint8_t pin){
+    adc_value = adc_read(pin);
+    if (adc_value != -1) {
     if (adc_value < threshold)
       // black
       return 1;
@@ -85,107 +60,6 @@ int detect_black(uint8_t pin) {
     return 2;
 }
 
-void calculate_pid()
-{
-  P = error;
-  I = I + previous_I;
-  D = error - previous_error;
-  PID_value = (Kp * P) + (Ki * I) + (Kd * D);
-  previous_I = I;
-  previous_error = error;
-}
-
-void calc_error()
-{
-
-	if(detect_black(left_far) && !detect_black(left_near) && !detect_black(right_near) && !detect_black(right_far))
-		error = 3;
-	else if(detect_black(left_far) && detect_black(left_near) && !detect_black(right_near) && !detect_black(right_far))
-		error = 2;
-	else if(!detect_black(left_far) && detect_black(left_near) && !detect_black(right_near) && !detect_black(right_far))
-		error = 1;
-	else if(!detect_black(left_far) && detect_black(left_near) && detect_black(right_near) && !detect_black(right_far))
-		error = 0;
-	else if(!detect_black(left_far) && !detect_black(left_near) && detect_black(right_near) && !detect_black(right_far))
-		error = -1;
-	else if(!detect_black(left_far) && !detect_black(left_near) && detect_black(right_near) && detect_black(right_far))
-		error = -2;
-	else if(!detect_black(left_far) && !detect_black(left_near) && !detect_black(right_near) && detect_black(right_far))
-		error = -3;
-	else if(detect_black(left_far) && detect_black(left_near) && detect_black(right_near) && !detect_black(right_far)) // Turn robot left side
-		error = 100;
-	else if(!detect_black(left_far) && detect_black(left_near) && detect_black(right_near) && detect_black(right_far)) // Turn robot right side
-		error = 101;
-	else if(!detect_black(left_far) && !detect_black(left_near) && !detect_black(right_near) && !detect_black(right_far)) // Make U turn
-		error = 102;
-	else if(detect_black(left_far) && detect_black(left_near) && detect_black(right_near) && detect_black(right_far)) // Turn left side or stop
-		error = 103;
-
-
- 
-}
-
-void motor_control()
-{
-  // Calculating the effective motor speed:
-  int left_motor_speed = initial_motor_speed - PID_value;
-  int right_motor_speed = initial_motor_speed + PID_value;
-
-  // The motor speed should not exceed the max PWM value
-  left_motor_speed = constrain(left_motor_speed, 0, 255);
-  right_motor_speed = constrain(right_motor_speed, 0, 255);
-
-  /*Serial.print(PID_value);
-    Serial.print("\t");
-    Serial.print(left_motor_speed);
-    Serial.print("\t");
-    Serial.println(right_motor_speed);*/
-
-  analogWrite(enA, left_motor_speed); //Left Motor Speed
-  analogWrite(enB, right_motor_speed - 30); //Right Motor Speed
-
-  //following lines of code are to make the bot move forward
-  moveForward();
-}
-
-void work() {
-
-  if(!detect_black(left_far) && !detect_black(right_far)) {
-    Serial.println("Moving Forward.");
-    moveForward();
-    delay(100);
-  }
-
-  if(!detect_black(left_far) && detect_black(right_far)){
-    Serial.println("Moving Left.");
-    moveLeft();  
-    // moveForward();
-  }
-
-  if(detect_black(left_far) && !detect_black(right_far)){
-    Serial.println("Moving Right.");
-    moveRight(); 
-    // moveForward();
-
-  }
-
-  // cross case
-  if(detect_black(left_far) && detect_black(right_far)){
-    Serial.println("Cross.");
-   moveForward();
-  }
-
-}
-
-void moveForward() {
-   //analogWrite(enA, MOVING_SPEED);
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  //analogWrite(enB, MOVING_SPEED);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
-}
-
 void stop() {
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
@@ -193,45 +67,96 @@ void stop() {
   digitalWrite(in4, LOW);
 }
 
-void moveRight() {
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  //analogWrite(enA, MOVING_SPEED);
-  //analogWrite(enB, 0);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, LOW);
-  
+void move_car(int left_speed, int right_speed){
+    
+
+    if (left_speed < 0)
+    {
+        // left motor backward
+        left_speed = -1 * left_speed;
+        digitalWrite(in1, HIGH);
+        digitalWrite(in2, LOW);
+    }else{
+        // left motor forward
+        digitalWrite(in1, LOW);
+        digitalWrite(in2, HIGH);
+    }
+
+    if (right_speed < 0)
+    {
+        // right motor backward
+        right_speed = -1 * right_speed;
+        digitalWrite(in3, HIGH);
+        digitalWrite(in4, LOW);
+    }else{
+        // right motor forward
+        digitalWrite(in3, LOW);
+        digitalWrite(in4, HIGH);
+    }
+
+    // Just for debugging
+    if (right_speed < 0 && left_speed < 0)
+    {
+        Serial.println("Error in calculations!!!!!!!!!!!!");
+    }
+
+
+    analogWrite(enA, left_speed);
+    analogWrite(enB, right_speed);
 }
 
-void moveLeft() {
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);
-  //analogWrite(enA, 0);
-  //analogWrite(enB, MOVING_SPEED);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
+int detect_line() {
+
+  sensor_reads[0] = detect_black(left_near);
+  sensor_reads[1] = detect_black(center);
+  sensor_reads[2] = detect_black(right_near);
+
+  reads_weight = 1000 * sensor_reads[0] + 2000 * sensor_reads[1] + 3000 * sensor_reads[2];
+  reads_sum    = sensor_reads[0] + sensor_reads[1] + sensor_reads[2];
+
+  return reads_weight / reads_sum;
 }
 
-void sharpRightTurn() {
-  /*The pin numbers and high, low values might be different depending on your connections */
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
+void change_motors_speed(int change_value){
+
+    int motor_a_speed = forward_speed + change_value;        // A : left motor
+    int motor_b_speed = forward_speed - change_value;       //  B : right motor
+
+    if (motor_a_speed > MAX_SPEED) motor_a_speed = MAX_SPEED;
+    if (motor_b_speed > maxspeedb) motor_b_speed = MAX_SPEED;
+    if (motor_a_speed < (-1 * MIN_SPEED)) motor_a_speed = -1 * MIN_SPEED;
+    if (motor_b_speed < (-1 * MIN_SPEED)) motor_b_speed = -1 * MIN_SPEED;
+    
+    move_car(motor_a_speed, motor_b_speed);
 }
-void sharpLeftTurn() {
-  /*The pin numbers and high, low values might be different depending on your connections */
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
+
+void PID(){
+    const BEST_CASE = 2000;
+
+    int current_position = detect_line();
+    int error = (BEST_CASE - (int)current_position);
+    /*
+    * if the error = 0 --> correct moving 
+    * if the error > 0 --> the car is moving left, so we need to turn right
+    * if the error < 0 --> the car is moving right, so we need to turn left
+    */
+
+   // PID parameters
+   int  P = error,
+        I = I + error,
+        D = last_error - error;
+
+    last_error = error;
+
+    int PID_value  = P * Kp + I * Ki + D * Kd;
+    change_motors_speed(PID_value);
+    
 }
 
 void setup() {
 
   DDRC &= ~(1<<center); //PC5 center
 
-  // put your setup code here, to run once:
   pinMode(enA, OUTPUT);
   pinMode(enB, OUTPUT);
   pinMode(in1, OUTPUT);
@@ -239,9 +164,9 @@ void setup() {
   pinMode(in3, OUTPUT);
   pinMode(in4, OUTPUT);
   pinMode(12, OUTPUT);
-  // pinMode(2, OUTPUT);   // GND for testing
   pinMode(7, OUTPUT);   // VCC for testing
   pinMode(13, OUTPUT);  // VCC for testing
+  pinMode(center, INPUT); // center sensor
 
   digitalWrite(7, HIGH);
   digitalWrite(13, HIGH);
@@ -256,91 +181,73 @@ void setup() {
   DDRB |= (1 << in4);  // PB5
 
   Serial.begin(9600);
-  
-  // center sensor
-  pinMode(center, INPUT);
 
   // sensors
   adc_init();
 }
 
-void loop()
-{
-    // Serial.println(detect_black(left_near));
-  calc_error();
-  Serial.println(error);
-  if (error == 100) {               // Make left turn untill it detects straight path
-    //Serial.print("\t");
-    //Serial.println("Left");
-    do {
-      calc_error();
-      analogWrite(enA, 80); //Left Motor Speed
-      analogWrite(enB, 60); //Right Motor Speed
-      moveLeft();
-    } while (error != 0);
-
-  } else if (error == 101) {          // Make right turn in case of it detects only right path (it will go into forward direction in case of staright and right "|--")
-                                      // untill it detects straight path.
-    //Serial.print("\t");
-    //Serial.println("Right");
-    analogWrite(enA, 80); //Left Motor Speed
-    analogWrite(enB, 60); //Right Motor Speed
-    moveForward();
-    delay(200);
-    stop();
-    calc_error();
-    if (error == 102) {
-      do {
-        analogWrite(enA, 80); //Left Motor Speed
-        analogWrite(enB, 60); //Right Motor Speed
-        moveRight();
-        calc_error();
-      } while (error != 0);
-    }
-  } 
-  else if (error == 102) {        // Make left turn untill it detects straight path
-    //Serial.print("\t");
-    //Serial.println("Sharp Left Turn");
-    do {
-      analogWrite(enA, 80); //Left Motor Speed
-      analogWrite(enB, 60); //Right Motor Speed
-      moveLeft();
-      calc_error();
-      if (error == 0) {
-        stop();
-        delay(200);
-      }
-    } while (error != 0);
-  }
-  //  else if (error == 103) {        // Make left turn untill it detects straight path or stop if dead end reached.
-  //   if (flag == 0) {
-  //     analogWrite(enA, 80); //Left Motor Speed
-  //     analogWrite(enB, 60); //Right Motor Speed
-  //     moveForward();
-  //     delay(200);
-  //     stop();
-  //     calc_error();
-  //     if (error == 103) {     /**** Dead End Reached, Stop! ****/
-  //       stop();
-  //       flag = 1;
-  //     } else {        /**** Move Left ****/
-  //       analogWrite(enA, 80); //Left Motor Speed
-  //       analogWrite(enB, 60); //Right Motor Speed
-  //       sharpLeftTurn();
-  //       delay(200);
-  //       do {
-  //         //Serial.print("\t");
-  //         //Serial.println("Left Here");
-  //         calc_error();
-  //         analogWrite(enA, 80); //Left Motor Speed
-  //         analogWrite(enB, 60); //Right Motor Speed
-  //         sharpLeftTurn();
-  //       } while (error != 0);
-  //     }
-  //   }
-  // } 
-  else {
-    calculate_pid();
-    motor_control();
-  }
+void loop() {
+    PID();
 }
+
+
+
+// int detect_black(uint8_t pin) {
+//   adc_value = adc_read(pin);
+//     if (adc_value != -1) {
+//     if (adc_value < threshold)
+//       // black
+//       return 1;
+//     else
+//       // white
+//       return 0;
+//   } else
+//     return 2;
+// }
+
+
+
+
+// void moveForward(int speed) {
+//   analogWrite(enA, speed);
+//   digitalWrite(in1, LOW);
+//   digitalWrite(in2, HIGH);
+//   analogWrite(enB, speed);
+//   digitalWrite(in3, LOW);
+//   digitalWrite(in4, HIGH);
+// }
+
+// void moveRight(int left_speed, int right_speed) {
+//   // left motor forward
+//   digitalWrite(in1, LOW);
+//   digitalWrite(in2, HIGH);
+//   analogWrite(enA, left_speed);
+
+//   // right motor backward
+//   analogWrite(enB, right_speed);
+//   digitalWrite(in3, HIGH);
+//   digitalWrite(in4, LOW);
+  
+// }
+
+// void moveLeft(int left_speed, int right_speed) {
+//   // left motor backward
+//   digitalWrite(in1, HIGH);
+//   digitalWrite(in2, LOW);
+//   analogWrite(enA, left_speed);
+
+//   // right motor forward
+//   analogWrite(enB, right_speed);
+//   digitalWrite(in3, LOW);
+//   digitalWrite(in4, HIGH);
+// }
+
+
+// uint16_t adc_read(uint8_t ch){
+//     // select the corresponding channel 0~5 ANDing with ’7′ will always keep the value of ‘ch’ between 0 and 5
+//     ch &= 0b00000111; // AND operation with 7
+//     ADMUX = (ADMUX & 0xF8)|ch; // clears the bottom 3 bits before ORing start single conversion write ’1′ to ADSC
+//     ADCSRA |= (1<<ADSC); // wait for conversion to complete // ADSC becomes ’0′ again // till then, run loop continuously
+//     while(ADCSRA & (1<<ADSC));
+//     return (ADC);
+// }
