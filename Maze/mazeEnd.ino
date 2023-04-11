@@ -37,9 +37,9 @@
 // String sensor_reading = "000";  // initial value
 String sensor_reading = "00000";  // initial value
 String path = "";
-#define left_far  PC1
+#define left_far  PC2
 #define left_near PC3
-#define right_far PC2
+#define right_far PC1
 #define right_near PC4
 #define center PC5
 
@@ -142,8 +142,8 @@ void readSensors() {
 
   sensor_reading[0] = detect_black(left_far);
   sensor_reading[1] = detect_black(left_near);
-  // sensor_reading[2] = detect_black(center);
-  sensor_reading[2] = digitalRead(2);    // for digital sensor
+  sensor_reading[2] = detect_black(center);
+  // sensor_reading[2] = digitalRead(2);    // for digital sensor
   sensor_reading[3] = detect_black(right_near);
   sensor_reading[4] = detect_black(right_far);
   //}
