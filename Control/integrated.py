@@ -48,7 +48,7 @@ def detection(src,cdstP,new_image):
 
     
      
-    if(new_image[int(y_axis)][int(x_axis)].any()):
+    if(new_image[int(y_axis)-10:int(y_axis)+10,int(x_axis)-10:int(x_axis)+10].any()):
         print('yes')
         cv2.circle(cdstP, (int(x_axis),int(y_axis)), radius=5, color=(255, 255, 255), thickness=5)
         ser.write(b'1')
