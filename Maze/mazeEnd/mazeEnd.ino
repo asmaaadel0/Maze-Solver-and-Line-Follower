@@ -6,8 +6,8 @@
 // #define back_left PC2
 // #define back_right PC3
 
-#define MOVING_SPEED 70
-
+#define MOVING_SPEED 110
+float x=0;
 // possible cases
 #define STRAIGHT   "010"
 #define LEFT_TURN  "100"
@@ -37,11 +37,11 @@
 // String sensor_reading = "000";  // initial value
 String sensor_reading = "00000";  // initial value
 String path = "";
-#define left_far  PC2
+#define left_far  PC5
 #define left_near PC3
 #define right_far PC1
 #define right_near PC4
-#define center PC5
+#define center PC2
 
 #define threshold 500
 uint8_t ADC_end = 0;
@@ -56,37 +56,6 @@ int in4 = 4;
 int in3 = 5;
 uint8_t black = 1;
 
-// void adc_init(void) {
-//   ADMUX |= (1 << REFS0);                                 // Set ADC reference to AVCC
-//   ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);  // Set ADC prescaler to 128 - 125KHz sample rate @ 16MHz
-//   ADCSRA |= (1 << ADEN);                                 // Enable ADC
-//   ADCSRA |= (1 << ADIE);                                 // Enable ADC Interrupt
-//   //ADCSRA |= (1 << ADSC); 
-//   sei();                                // Start A2D Conversions
-// }
-
-
-// ISR(ADC_vect) {
-//   ADC_end = 1;
-// }
-
-
-// uint16_t read_adc(uint8_t ch) {
-//   // select the corresponding channel 0~7
-//   // ANDing with ’7′ will always keep the value
-//   // of ‘ch’ between 0 and 7
-//   ch &= 0b00000111;             // AND operation with 7
-//   ADMUX = (ADMUX & 0xF8) | ch;  // clears the bottom 3 bits before ORing
-//                                 // start single convertion
-//   // write ’1′ to ADSC
-//   ADCSRA |= (1 << ADSC);
-//   if (ADC_end == 1) {
-//     ADC_end = 0;
-//     //Serial.println(ADC);
-//     return ADC;
-//   } else
-//     return -1;
-// }
 
 void adc_init()
 {
@@ -345,11 +314,11 @@ void move180(){
 
 void move90Left() {
   readSensors();
-  moveForward();
-  delay(550);
-  while(!detect_black(left_near) && !detect_black(left_far)) {
-      readSensors();
-  }
+  // moveForward();
+  // delay(550);
+  // while(!detect_black(left_near) && !detect_black(left_far)) {
+  //     readSensors();
+  // }
   digitalWrite(in3, LOW);
   digitalWrite(in4, HIGH);
   analogWrite(enB, MOVING_SPEED);
@@ -357,16 +326,16 @@ void move90Left() {
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
   readSensors();
-  while(!sensor_reading.equals(STRAIGHT)){
-  readSensors();
-  }
+  // while(!sensor_reading.equals(STRAIGHT)){
+  // readSensors();
+  // }
   
   // delay(970);
-    delay(100);
+    // delay(100);
   // stop();
   // delay(20);
 
-  readSensors();
+  // readSensors();
     // delay(500);
   // analogWrite(enB, 0);
   // analogWrite(enA, 0);
@@ -419,6 +388,7 @@ void setup() {
   pinMode(in2, OUTPUT);
   pinMode(in3, OUTPUT);
   pinMode(in4, OUTPUT);
+  // -> 5 volt of h bridge
   pinMode(12, OUTPUT);
 
   //adc_init();
@@ -426,6 +396,7 @@ void setup() {
 
   // pinMode(2, OUTPUT);   // GND for testing
   pinMode(7, OUTPUT);   // VCC for testing
+  // pinMode(7, INPUT);   // VCC for testing
   pinMode(13, OUTPUT);  // VCC for testing
 
   digitalWrite(7, HIGH);
@@ -457,7 +428,20 @@ void loop() {
   
   readSensors();
 
+  // Serial.println(detect_black(right_far));
+  // // Serial.println(detect_black(left_far));
+  // if(!detect_black(left_far) && !detect_black(right_far)){
+  //   // line
+  // }
+  // if(detect_black(left_far) && !detect_black(right_far)){
+  //   move90Left();
+  // }
+//  x=analogRead(7);
+
   Serial.println(sensor_reading);
+  // delay(2000);
+  // Serial.println(detect_black(right_near));
+  // Serial.println(detect_black(right_far));
   //  work();
   
   // delay(2000);
@@ -468,7 +452,7 @@ void loop() {
   // moveLeft();
   //  delay(1000);
 
-  moveForward();
+  // moveForward();
   // delay(1000);
   // // moveBackward();
   // moveRight();

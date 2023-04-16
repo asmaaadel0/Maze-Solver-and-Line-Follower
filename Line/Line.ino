@@ -214,7 +214,7 @@ void setup() {
 void loop() {
   // moveLeft();
   // Serial.println('left : ');
-  // Serial.println(detect_black(right_far));
+  Serial.println(detect_black(right_far));
   // Serial.println(detect_black(left_near));
   // Serial.println(detect_black(right_near));
   // delay(1000);
