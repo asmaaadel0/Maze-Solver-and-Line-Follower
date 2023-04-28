@@ -181,10 +181,10 @@ void loop() {
   //   Serial.println(c_cc);
   //    delay(1000);
   /////////////////////////////////////////////////////
-  movecar2();
+  // movecar2();
   // Serial.println(path);
   //moveMotor(SPEEDFORWARD, SPEEDFORWARD);
-  //moveMotor2(SPEEDFORWARD,SPEEDFORWARD,1,-1);
+  moveMotor2(SPEEDFORWARD,SPEEDFORWARD,1,1);
   //  analogRead(IR_R) > THRESHOLD_W
   //   && analogRead(IR_C) < THRESHOLD_W;
   //   && analogRead(IR_L) > THRESHOLD_W);
