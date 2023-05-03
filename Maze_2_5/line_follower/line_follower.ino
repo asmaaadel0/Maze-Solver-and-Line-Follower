@@ -1,3 +1,4 @@
+// Yesterday's code
 // sensors array: 1 -> white, 0 -> black
 #define sensor_right1 4   // 8 far
 #define sensor_right2 8  // near
