@@ -201,14 +201,13 @@ void sensLogic(long X) {
     case B00001:
     case B00011:
     case B00111:
-    
+    case B00101: //mod
       outlineCnt = 0;
       Error = 1;
       // Serial.println(X,BIN);
       break;
       
     case B00100:
-    case B10100: // mod
       outlineCnt = 0;
       Error = 0;
       // Serial.println(X,BIN);
@@ -225,7 +224,7 @@ void sensLogic(long X) {
     case B11000:
     case B11100:  
     case B10001: // mod
-    case B00101: //mod
+    case B10100: // mod
       outlineCnt = 0;
       Error = -1;
       // Serial.println(X,BIN);
