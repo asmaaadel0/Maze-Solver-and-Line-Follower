@@ -1,11 +1,11 @@
 // Yesterday's code
 // sensors array: 1 -> white, 0 -> black
-#define sensor_right1 4   // 8 far
+#define sensor_right1 4  // 8 far
 #define sensor_right2 8  // near
 #define sensor_midel 13
 #define sensor_left1 2  //11  far
 #define sensor_left2 7  // near
-#define c1 9   // in1
+#define c1 9            // in1
 #define c2 6
 #define c3 5
 #define c4 3
@@ -13,11 +13,18 @@
 #define cB 10
 #define cC 12
 
-#define IR_L A3 // 0 -> white, 1 -> black
+#define IR_L A3  // 0 -> white, 1 -> black
 #define IR_R A2
 
 long speed = 110;
 int rot_speed = 70;
+
+double Kp = 100;
+double Ki = 0.1;
+double Kd = 195;
+double error = 0, errorLast = 0, erroInte = 0;
+unsigned long last;
+
 
 int lIsBlack = 0;
 int rIsBlack = 0;
@@ -33,21 +40,19 @@ int rrIsWhite = 0;
 unsigned long lastRight = 0;
 
 long pos;
+int kam2 = 9000;
 
 int onLine() {
   return (
     digitalRead(sensor_right2) == 1
     && digitalRead(sensor_midel) == 0
     && digitalRead(sensor_left2) == 1);
-
 }
-int kam2 = 9000;
-
 
 void rotateRight() {
   int mincnt = kam2;
   while (mincnt > 0 || !onLine()) {
-    SpeedLogic( -1 * rot_speed, rot_speed);
+    SpeedLogic(-1 * rot_speed, rot_speed);
     // moveMotor2(speed, speed, -1, 1);
     mincnt--;
   }
@@ -81,13 +86,13 @@ void movecar2() {
 
   sensLogic(pos);
 
-  bool LL  = digitalRead(IR_L); 
-  bool RR  = digitalRead(IR_R);
+  bool LL = digitalRead(IR_L);
+  bool RR = digitalRead(IR_R);
   bool C = digitalRead(sensor_midel) ^ 1;
   bool L = digitalRead(sensor_left2) ^ 1;
   bool R = digitalRead(sensor_right2) ^ 1;
 
-  
+
   if (LL) llIsBlack++, llIsWhite = 0;
   else llIsBlack = 0, llIsWhite++;
 
@@ -115,68 +120,29 @@ void movecar2() {
       rotateRight();
       // if (strcmp(path[path.length() - 1], "R")) {
       //   path += "R";
-      // } 
+      // }
+    } else {
+      rotate180();
+      // if (strcmp(path[path.length() - 1], "B"))
+      //   path += "B";
     }
-    else {
-        rotate180();
-        // if (strcmp(path[path.length() - 1], "B"))
-        //   path += "B";
-      }
   }
 
   if (rrIsBlack >= kam)
     lastRight = millis();
 
-
-
-  // movecar();
 }
 
 
-
-// void moveMotor2(int speedR, int speedL, int rDir, int lDir) {
-//   // rDir *= -1;
-//   // lDir *= -1;
-//   if (millis() % 200 > 120) {
-//     analogWrite(MOTOR_R_SPEED, 0);
-//     analogWrite(MOTOR_L_SPEED, 0);
-//     return;
-//   }
-//   analogWrite(MOTOR_R_SPEED, speedR);
-//   analogWrite(MOTOR_L_SPEED, speedL);
-//   if (rDir == 1) {
-//     digitalWrite(MOTOR_R_F, HIGH);
-//     digitalWrite(MOTOR_R_B, LOW);
-//   } else {
-//     digitalWrite(MOTOR_R_F, LOW);
-//     digitalWrite(MOTOR_R_B, HIGH);
-//   }
-//   if (lDir == 1) {
-//     digitalWrite(MOTOR_L_F, HIGH);
-//     digitalWrite(MOTOR_L_B, LOW);
-//   } else {
-//     digitalWrite(MOTOR_L_F, LOW);
-//     digitalWrite(MOTOR_L_B, HIGH);
-//   }
-//   if (rDir == 1 && lDir == 1) {
-//     if (strcmp(path[path.length() - 1], "S"))
-//       path += "S";
-//   }
-// }
-
-
-
-
-
 // SPEED CINTER
-// =============================================================================== 
+// ===============================================================================
 
 void SpeedLogic(long spdL, long spdR) {
   spdR = -spdR;
 
   if (spdL < 0) {
     analogWrite(c2, 0);
-    analogWrite(c1,-spdL);
+    analogWrite(c1, -spdL);
   } else {
     analogWrite(c2, spdL);  // rotate right
     analogWrite(c1, 0);
@@ -189,9 +155,9 @@ void SpeedLogic(long spdL, long spdR) {
     analogWrite(c3, spdR);
     analogWrite(c4, 0);  // rotate left
   }
-} 
+}
 //================================================================================================
-// LOGIC CINTER 
+// LOGIC CINTER
 
 long Error = 0;
 long outlineCnt = 0;
@@ -199,24 +165,24 @@ long outlineCnt = 0;
 void sensLogic(long X) {
   switch (X) {
     case B00000:
-      outlineCnt=0;
-      Error=Error;
+      outlineCnt = 0;
+      Error = Error;
       // Serial.println(X,BIN);
       break;
-      
+
     case B11111:
-      outlineCnt=0;
+      outlineCnt = 0;
       Error = 0;
       // Serial.println(X,BIN);
       break;
-      
+
     case B00010:
     case B00110:
       outlineCnt = 0;
       Error = 1;
       // Serial.println(X,BIN);
       break;
-      
+
     case B00001:
     case B00011:
     case B00111:
@@ -224,20 +190,20 @@ void sensLogic(long X) {
       Error = 2;
       // Serial.println(X,BIN);
       break;
-      
+
     case B00100:
       outlineCnt = 0;
       Error = 0;
       // Serial.println(X,BIN);
       break;
-      
+
     case B01000:
     case B01100:
       outlineCnt = 0;
       Error = -1;
       // Serial.println(X,BIN);
       break;
-      
+
     case B10000:
     case B11000:
     case B11100:
@@ -245,21 +211,21 @@ void sensLogic(long X) {
       Error = -2;
       // Serial.println(X,BIN);
       break;
-      
+
     default:
-      outlineCnt=0;
-      Error=Error;
+      outlineCnt = 0;
+      Error = Error;
       // Serial.println(X,BIN);
       break;
   }
 
   if (outlineCnt > 2) {
-    SpeedLogic(0,0);
+    SpeedLogic(0, 0);
   } else {
-    
+
     double ctrl = calcPid(Error);
-    double speedign = speed-ctrl;
-    double speedign2 = speed+ctrl;
+    double speedign = speed - ctrl;
+    double speedign2 = speed + ctrl;
 
     speedign = constrain(speedign, -200, 250);
     speedign2 = constrain(speedign2, -200, 250);
@@ -268,20 +234,12 @@ void sensLogic(long X) {
 }
 //===============================================================================================
 
-// PID 85 80000 | 20 10000
-// speed = 110
-// Kp = 20;
-// Ki = 0.2
-// kd = 110
-double Kp = 100;
-double Ki = 0.1;
-double Kd = 195;
-double error=0, errorLast=0, erroInte=0;
-unsigned long last;
+
+
 double calcPid(double input) {
   double errorDiff;
   double output;
-  error = error * 0.7 + input * 0.3; // filter
+  error = error * 0.7 + input * 0.3;  // filter
   //error = input;
   errorDiff = error - errorLast;
   erroInte = constrain(erroInte + error, -50, 50);
@@ -294,54 +252,54 @@ double calcPid(double input) {
 // TRACE ===================================================================================
 long sensTrace() {
   long ret = B00000;
-  long a[5]={!digitalRead(sensor_right1),
-            !digitalRead(sensor_right2),
-            !digitalRead(sensor_midel),
-            !digitalRead(sensor_left1),
-            !digitalRead(sensor_left2)};
+  long a[5] = { !digitalRead(sensor_right1),
+                !digitalRead(sensor_right2),
+                !digitalRead(sensor_midel),
+                !digitalRead(sensor_left1),
+                !digitalRead(sensor_left2) };
   // Serial.println(a[4]+a[3]+a[2]+a[1]+a[0]);
   for (long i = 0; i < 5; i++) {
-  // Serial.print(a[i], BIN);
+    // Serial.print(a[i], BIN);
     if (a[i] == HIGH) ret += (0x1 << i);
   }
   // Serial.println(' ');
 
-  
+
   return ret;
 }
 //========================================================================================
 
 void setup() {
- Serial.begin(9600);
-  pinMode(sensor_right1,INPUT);
-  pinMode(sensor_right2,INPUT);
-  pinMode(sensor_midel,INPUT);
-  pinMode(sensor_left1,INPUT);
-  pinMode(sensor_left2,INPUT);
-      pinMode(c1,OUTPUT);
-      pinMode(c2,OUTPUT);
-      pinMode(c3,OUTPUT);
-      pinMode(c4,OUTPUT); 
-      pinMode(cA,OUTPUT); 
-      pinMode(cB,OUTPUT); 
-      pinMode(cC,OUTPUT);
-digitalWrite(cA,HIGH);       
-digitalWrite(cB,HIGH);       
-digitalWrite(cC,HIGH);    
-pinMode(A5, OUTPUT);
-pinMode(A1, OUTPUT);
-pinMode(A4, OUTPUT);
+  Serial.begin(9600);
+  pinMode(sensor_right1, INPUT);
+  pinMode(sensor_right2, INPUT);
+  pinMode(sensor_midel, INPUT);
+  pinMode(sensor_left1, INPUT);
+  pinMode(sensor_left2, INPUT);
+  pinMode(c1, OUTPUT);
+  pinMode(c2, OUTPUT);
+  pinMode(c3, OUTPUT);
+  pinMode(c4, OUTPUT);
+  pinMode(cA, OUTPUT);
+  pinMode(cB, OUTPUT);
+  pinMode(cC, OUTPUT);
+  digitalWrite(cA, HIGH);
+  digitalWrite(cB, HIGH);
+  digitalWrite(cC, HIGH);
+  pinMode(A5, OUTPUT);
+  pinMode(A1, OUTPUT);
+  pinMode(A4, OUTPUT);
 
-digitalWrite(A5,HIGH);       
-digitalWrite(A1,HIGH);       
-digitalWrite(A4,LOW);    
-      
-      
+  digitalWrite(A5, HIGH);
+  digitalWrite(A1, HIGH);
+  digitalWrite(A4, LOW);
 
- analogWrite(c1,0);
-  analogWrite(c2,0);
-  analogWrite(c3,0);
- analogWrite(c4,0);
+
+
+  analogWrite(c1, 0);
+  analogWrite(c2, 0);
+  analogWrite(c3, 0);
+  analogWrite(c4, 0);
 
   last = millis();
 }
@@ -349,24 +307,6 @@ digitalWrite(A4,LOW);
 
 
 void loop() {
-    //  analogWrite(c3, 0);
-    // analogWrite(c4, 200);
-    //   analogWrite(c2, 0);
-    // analogWrite(c1,200);
-  // Serial.println(digitalRead(sensor_midel));
-  // delay(4);
 
-  //pos = sensTrace();
-  // // Serial.print(pos);
-  // int far[2] = {digitalRead(sensor_midel), digitalRead(sensor_midel)};
-  // Serial.print(far[0]);
-  // Serial.println(far[1]);
-  
-
-    //sensLogic(pos);
-
-    movecar2();
-
-
-  // SpeedLogic(0,80);
+  movecar2();
 }
