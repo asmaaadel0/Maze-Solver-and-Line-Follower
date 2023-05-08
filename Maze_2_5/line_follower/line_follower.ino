@@ -16,12 +16,12 @@
 #define IR_L A3  // 0 -> white, 1 -> black
 #define IR_R A2
 
-long speed = 110;
+long speed = 110;  //110;
 int rot_speed = 70;
 
-double Kp = 100;
+double Kp = 100;  //100;
 double Ki = 0.1;
-double Kd = 195;
+double Kd = 200;  //195;
 double error = 0, errorLast = 0, erroInte = 0;
 unsigned long last;
 
@@ -40,7 +40,7 @@ int rrIsWhite = 0;
 unsigned long lastRight = 0;
 
 long pos;
-int kam2 = 9000;
+int kam2 = 9000;//9000;
 
 int onLine() {
   return (
@@ -55,9 +55,26 @@ void rotateRight() {
     SpeedLogic(-1 * rot_speed, rot_speed);
     // moveMotor2(speed, speed, -1, 1);
     mincnt--;
+    // pos = sensTrace();
+    // if (pos == B00000) {
+    //   rotate180();
+    //   break;
+    // }
   }
 }
 
+
+// void rotateLeft() {
+//   SpeedLogic(0, 0);
+//   SpeedLogic(-1 * rot_speed, -1 * rot_speed);
+//   SpeedLogic(0, 0);
+//   int mincnt = kam2;
+//   while (mincnt > 0 || !onLine()) {
+//     SpeedLogic(rot_speed, 0);
+
+//     mincnt--;
+//   }
+// }
 
 void rotateLeft() {
   SpeedLogic(0, 0);
@@ -67,6 +84,11 @@ void rotateLeft() {
   while (mincnt > 0 || !onLine()) {
     SpeedLogic(rot_speed, 0);
     mincnt--;
+    // pos = sensTrace();
+    // if (pos == B00000) {
+    //   rotate180();
+    //   break;
+    // }
   }
 }
 
@@ -122,7 +144,7 @@ void movecar2() {
       //   path += "R";
       // }
     } else {
-      rotate180();
+      //rotate180();
       // if (strcmp(path[path.length() - 1], "B"))
       //   path += "B";
     }
@@ -130,7 +152,6 @@ void movecar2() {
 
   if (rrIsBlack >= kam)
     lastRight = millis();
-
 }
 
 
@@ -162,76 +183,154 @@ void SpeedLogic(long spdL, long spdR) {
 long Error = 0;
 long outlineCnt = 0;
 
+// void sensLogic(long X) {
+//   switch (X) {
+//     case B00000:
+//       outlineCnt = 0;
+//       Error = Error;
+//       // Serial.println(X,BIN);
+//       break;
+
+//     case B11111:
+//       outlineCnt = 0;
+//       Error = 0;
+//       //rotate180();
+//       // Serial.println(X,BIN);
+//       break;
+
+//     case B00010:
+//     case B00110:
+//       outlineCnt = 0;
+//       Error = 1;
+//       // Serial.println(X,BIN);
+//       break;
+
+//     case B00001:
+//     case B00011:
+//     case B00111:
+//       outlineCnt = 0;
+//       Error = 2;
+//       // Serial.println(X,BIN);
+//       break;
+
+//     case B00100:
+//       outlineCnt = 0;
+//       Error = 0;
+//       // Serial.println(X,BIN);
+//       break;
+
+//     case B01000:
+//     case B01100:
+//       outlineCnt = 0;
+//       Error = -1;
+//       // Serial.println(X,BIN);
+//       break;
+
+//     case B10000:
+//     case B11000:
+//     case B11100:
+//       outlineCnt = 0;
+//       Error = -2;
+//       // Serial.println(X,BIN);
+//       break;
+
+//     default:
+//       outlineCnt = 0;
+//       Error = Error;
+//       // Serial.println(X,BIN);
+//       break;
+//   }
+
+//   if (outlineCnt > 2) {
+//     SpeedLogic(0, 0);
+//   } else {
+
+//     double ctrl = calcPid(Error);
+//     double speedign = speed - ctrl;
+//     double speedign2 = speed + ctrl;
+
+//     speedign = constrain(speedign, -200, 250);
+//     speedign2 = constrain(speedign2, -200, 250);
+//     SpeedLogic(speedign, speedign2);
+//   }
+// }
+
 void sensLogic(long X) {
   switch (X) {
     case B00000:
-      outlineCnt = 0;
-      Error = Error;
+      outlineCnt=0;
+      Error=Error;
       // Serial.println(X,BIN);
       break;
-
+      
     case B11111:
-      outlineCnt = 0;
+      outlineCnt=0;
       Error = 0;
       // Serial.println(X,BIN);
       break;
-
+      
     case B00010:
     case B00110:
+      outlineCnt = 0;
+      Error = .5;
+      // Serial.println(X,BIN);
+      break;
+      
+    case B00001:
+    case B00011:
+    case B00111:
+    
       outlineCnt = 0;
       Error = 1;
       // Serial.println(X,BIN);
       break;
-
-    case B00001:
-    case B00011:
-    case B00111:
-      outlineCnt = 0;
-      Error = 2;
-      // Serial.println(X,BIN);
-      break;
-
+      
     case B00100:
+    case B10100: // mod
       outlineCnt = 0;
       Error = 0;
       // Serial.println(X,BIN);
       break;
-
+      
     case B01000:
     case B01100:
+      outlineCnt = 0;
+      Error = -.5;
+      // Serial.println(X,BIN);
+      break;
+      
+    case B10000:
+    case B11000:
+    case B11100:  
+    case B10001: // mod
+    case B00101: //mod
       outlineCnt = 0;
       Error = -1;
       // Serial.println(X,BIN);
       break;
-
-    case B10000:
-    case B11000:
-    case B11100:
-      outlineCnt = 0;
-      Error = -2;
-      // Serial.println(X,BIN);
-      break;
-
+      
     default:
-      outlineCnt = 0;
-      Error = Error;
+      outlineCnt=0;
+      Error=Error;
       // Serial.println(X,BIN);
       break;
   }
 
   if (outlineCnt > 2) {
-    SpeedLogic(0, 0);
+    SpeedLogic(0,0);
   } else {
-
+    
     double ctrl = calcPid(Error);
-    double speedign = speed - ctrl;
-    double speedign2 = speed + ctrl;
+    double speedign = speed-ctrl;
+    double speedign2 = speed+ctrl;
 
     speedign = constrain(speedign, -200, 250);
     speedign2 = constrain(speedign2, -200, 250);
     SpeedLogic(speedign, speedign2);
   }
 }
+//============
+
 //===============================================================================================
 
 
@@ -251,7 +350,7 @@ double calcPid(double input) {
 }
 // TRACE ===================================================================================
 long sensTrace() {
-  long ret = B00000;
+  long ret = B00000;  
   long a[5] = { !digitalRead(sensor_right1),
                 !digitalRead(sensor_right2),
                 !digitalRead(sensor_midel),
