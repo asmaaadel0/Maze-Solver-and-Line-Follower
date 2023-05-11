@@ -19,13 +19,12 @@
 #define IR_CR A0
 #define IR_CL A4
 
-
-long speed = 110; // 110;
+long speed =  110;
 int rot_speed = 100;
 
-double Kp = 100; // 100;
+double Kp = 50; // 100;
 double Ki = 0.1;
-double Kd = 200; // 195;
+double Kd = 50; // 200;
 double error = 0, errorLast = 0, erroInte = 0;
 unsigned long last;
 
@@ -121,8 +120,6 @@ void movecar2()
   bool L = digitalRead(sensor_left1) ^ 1;
   bool R = digitalRead(sensor_right2) ^ 1;
   bool RRR = digitalRead(IR_RR);
-  bool CR = digitalRead(IR_CR);
-  bool CL = digitalRead(IR_CL);
 
   if (LL)
   {
@@ -132,7 +129,7 @@ void movecar2()
     delay(rotation_delay_ms);
   }
 
-  else if (RR && pos == B00000 && !CR && !CL) // right rear far sensor & the 5 sensors are white
+  else if (RR && pos == B00000) // right rear far sensor & the 5 sensors are white
   {
     // while(counter>=0){
     //    pos = sensTrace();
@@ -143,7 +140,7 @@ void movecar2()
     delay(rotation_delay_ms);
   }
 
-  if (pos == B00000 && !LL && !RRR && !CR && !CL)
+  if (pos == B00000 && !LL && !RRR)
   {
     counter180++;
   }
