@@ -14,10 +14,12 @@
 #define cB 10
 #define cC 12
 #define IR_RR A1 // right 180
-#define IR_L A3  // 0 -> white, 1 -> black
-#define IR_R A2
+#define IR_L A3  // 0 -> white, 1 -> black // we remove the old IR sensor from this bin and add analog sensor instead
+#define bottomR A2
+// #define IR_R A2
 #define IR_CR A0
 #define IR_CL A4
+#define bottomL A5
 
 long speed = 110; // 110;
 int rot_speed = 100;
@@ -56,12 +58,20 @@ int onLine2()
     return (
         digitalRead(sensor_right2) == 0 || digitalRead(sensor_midel) == 0 || digitalRead(sensor_left1) == 0 || digitalRead(sensor_left2) == 0 || digitalRead(sensor_right1) == 0);
 }
+int onLine3()
+{
+    if (analogRead(bottomL) < 500 || analogRead(bottomR) < 500)
+    {
+        return 1;
+    }
+    return 0;
+}
 
 void rotateRight()
 {
     int mincnt = kam2;
-    while (mincnt > 0 || !onLine())
-    { // to ask about the onLine
+    while (mincnt > 0 || !onLine3()) // !onLine()
+    {                                // to ask about the onLine
         // while (!onLine()) {
         SpeedLogic(-1 * rot_speed, rot_speed);
         // moveMotor2(speed, speed, -1, 1);
@@ -80,8 +90,12 @@ void rotateLeft()
     SpeedLogic(-1 * rot_speed, -1 * rot_speed);
     SpeedLogic(0, 0);
     int mincnt = kam2;
-    while (mincnt > 0 || !onLine())
+    while (mincnt > 0 || !onLine3()) // !onLine()
     {
+        // int RR = digitalRead(IR_RR);
+        // if(RR && mincnt <= 0){
+        //     break;
+        // }
         // while ( !onLine()) {
         SpeedLogic(rot_speed, 0);
         mincnt--;
@@ -98,7 +112,7 @@ void rotate180()
     SpeedLogic(rot_speed, rot_speed);
     delay(100);
     int mincnt = kam2 * 2;
-    while (mincnt > 0 || !onLine())
+    while (mincnt > 0 || !onLine3()) // !onLine()
     {
         SpeedLogic(rot_speed, -1 * rot_speed);
         mincnt--;
@@ -115,7 +129,7 @@ void movecar2()
     sensLogic(pos);
 
     bool LL = digitalRead(IR_L);
-    bool RR = digitalRead(IR_R);
+    // bool RR = digitalRead(IR_R);
     bool C = digitalRead(sensor_midel) ^ 1;
     bool L = digitalRead(sensor_left1) ^ 1;
     bool R = digitalRead(sensor_right2) ^ 1;
@@ -123,15 +137,23 @@ void movecar2()
     bool CR = digitalRead(IR_CR);
     bool CL = digitalRead(IR_CL);
 
+    // if (pos & B10000)
     if (LL)
     {
+        // // Abdelrahman solution
+        // // stop
+        // SpeedLogic(0, 0);
+        // // then go backward
+        // SpeedLogic(-speed , -speed);
+        // // delay
+        // delay(200);
 
         rotateLeft();
         SpeedLogic(0, 0);
         delay(rotation_delay_ms);
     }
 
-    else if (RR && pos == B00000) // right rear far sensor & the 5 sensors are white
+    else if (RRR && pos == B00000) // right rear far sensor & the 5 sensors are white
     {
         // while(counter>=0){
         //    pos = sensTrace();
@@ -142,7 +164,7 @@ void movecar2()
         delay(rotation_delay_ms);
     }
 
-    if (pos == B00000 && !LL && !RRR )
+    if (pos == B00000 && !RRR)
     {
         counter180++;
     }
@@ -150,7 +172,7 @@ void movecar2()
     {
         counter180 = 0;
     }
-    if (counter180 == 1000)
+    if (counter180 == 1000 && analogRead(bottomR) > 500 && analogRead(bottomL) > 500)
     {
         rotate180();
         // Serial.println(counter180);
@@ -212,7 +234,7 @@ void sensLogic(long X)
     case B00010:
     case B00110:
         outlineCnt = 0;
-        Error = .5;
+        Error = 1; //.5;
         // Serial.println(X,BIN);
         break;
 
@@ -235,7 +257,7 @@ void sensLogic(long X)
     case B01000:
     case B01100:
         outlineCnt = 0;
-        Error = -.5;
+        Error = -1; //-.5;
         // Serial.println(X,BIN);
         break;
 
@@ -331,13 +353,13 @@ void setup()
     digitalWrite(cA, HIGH);
     digitalWrite(cB, HIGH);
     digitalWrite(cC, HIGH);
-    pinMode(A5, OUTPUT);
+    pinMode(A5, INPUT);
     // pinMode(A1, OUTPUT);
-    //pinMode(A4, OUTPUT);
+    // pinMode(A4, OUTPUT);
 
-    digitalWrite(A5, HIGH);
-    // digitalWrite(A1, HIGH);
-    //digitalWrite(A4, LOW);
+    // digitalWrite(A5, HIGH);
+    //  digitalWrite(A1, HIGH);
+    // digitalWrite(A4, LOW);
 
     analogWrite(c1, 0);
     analogWrite(c2, 0);
@@ -351,10 +373,18 @@ void setup()
 void loop()
 {
 
-// TODO --> straight
-//pos = sensTrace();
-//sensLogic(pos);
+    // TODO --> straight
+    // pos = sensTrace();
+    // sensLogic(pos);
     movecar2();
+    // if(analogRead(A5) > 500)
+    // {
+    //     rotateRight();
+    // }
+    // else{
+    //     SpeedLogic(0, 0);
+    // }
+    // SpeedLogic(-100, -100);
     //  Serial.print("left ir ");
     // Serial.println(digitalRead(IR_L));
     // delay(500);
