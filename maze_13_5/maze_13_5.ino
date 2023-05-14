@@ -553,12 +553,12 @@ void setup()
 void loop()
 {
     delay(5);
-    // if (scan)
-    // {
-    //     float time1 = millis();
-    //     movecar2();
-    // }
-    // else
+    if (scan)
+    {
+        float time1 = millis();
+        movecar2();
+    }
+    else
         replay();
 }
 
@@ -571,15 +571,12 @@ void replay()
     sensLogic(pos);
 
     // Read the string back from EEPROM and print it
-    // char readString[path.length() + 1];
-    // for (int i = 0; i < path.length(); i++)
-    // {
-    //     readString[i] = EEPROM.read(i);
-    // }
-    // readString[path.length()] = '\0'; // Add null terminator to indicate end of string
-    // // Serial.println(readString);
-
-    String readString = "LLRLRRSSSLL";
+    char readString[path.length() + 1];
+    for (int i = 0; i < path.length(); i++)
+    {
+        readString[i] = EEPROM.read(i);
+    }
+    readString[path.length()] = '\0'; // Add null terminator to indicate end of string
 
     bool LL = digitalRead(IR_L);
     bool RR = digitalRead(IR_R);
