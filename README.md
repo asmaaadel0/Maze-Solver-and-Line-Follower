@@ -78,39 +78,44 @@ Contributions are what make the open source community such an amazing place to b
   <tr>
    <td align="center">
     <a href="https://github.com/abdalhamedemad" target="_black">
-    <img src="https://avatars.githubusercontent.com/u/76442606?v=4" width="150px;" alt="Asmaa Adel"/>
+    <img src="https://avatars.githubusercontent.com/u/76442606?v=4" width="150px;" alt="Abdalham Edemad"/>
     <br />
     <sub><b>Abdalham Edemad</b></sub></a>
     </td>
     <td align="center">
     <a href="https://github.com/MUSTAFA-Hamzawy" target="_black">
-    <img src="https://avatars.githubusercontent.com/u/72188665?v=4" width="150px;" alt="Asmaa Adel"/>
+    <img src="https://avatars.githubusercontent.com/u/72188665?v=4" width="150px;" alt="MUSTAFA Hamzawy"/>
     <br />
     <sub><b>MUSTAFA Hamzawy</b></sub></a>
     </td>
    <td align="center">
     <a href="https://github.com/AbdelrahmanAshrafMohamedelsayed" target="_black">
-    <img src="https://avatars.githubusercontent.com/u/97232730?v=4" width="150px;" alt="Asmaa Adel"/>
+    <img src="https://avatars.githubusercontent.com/u/97232730?v=4" width="150px;" alt="Abdelrahman Ashraf"/>
     <br />
     <sub><b>Abdelrahman Ashraf</b></sub></a>
     </td>
     <td align="center">
     <a href="https://github.com/karimsaqer" target="_black">
-    <img src="https://avatars.githubusercontent.com/u/92232949?v=4" width="150px;" alt="Asmaa Adel"/>
+    <img src="https://avatars.githubusercontent.com/u/92232949?v=4" width="150px;" alt="Karim Saqer"/>
     <br />
     <sub><b>Karim Saqer</b></sub></a>
+    <td align="center">
+    <a href="https://github.com/khaled-farahat" target="_black">
+    <img src="https://avatars.githubusercontent.com/u/84389471?v=4" width="150px;" alt="Khaled Farahat"/>
+    <br />
+    <sub><b>Khaled Farahat</b></sub></a>
     </td>
      <td align="center">
     <a href="https://github.com/Rufaida-Kassem" target="_black">
-    <img src="https://avatars.githubusercontent.com/u/68002137?v=4" width="150px;" alt="Asmaa Adel"/>
+    <img src="https://avatars.githubusercontent.com/u/68002137?v=4" width="150px;" alt="Rufaida Kassem"/>
     <br />
     <sub><b>Rufaida Kassem</b></sub></a>
     </td>
-       <td align="center">
+    <td align="center">
     <a href="https://github.com/doaamagdy2024" target="_black">
-    <img src="https://avatars.githubusercontent.com/u/71094316?v=4" width="150px;" alt="Asmaa Adel"/>
+    <img src="https://avatars.githubusercontent.com/u/71094316?v=4" width="150px;" alt="Doaa Magdy"/>
     <br />
-    <sub><b>Doaa Magdy </b></sub></a>
+    <sub><b>Doaa Magdy</b></sub></a>
     </td>
     <td align="center">
     <a href="https://github.com/asmaaadel0" target="_black">
@@ -120,19 +125,19 @@ Contributions are what make the open source community such an amazing place to b
     </td>
     <td align="center">
     <a href="https://github.com/Samaa-Hazem2001" target="_black">
-    <img src="https://avatars.githubusercontent.com/u/82514924?v=4" width="150px;" alt="Asmaa Adel"/>
+    <img src="https://avatars.githubusercontent.com/u/82514924?v=4" width="150px;" alt="Samaa Hazem"/>
     <br />
     <sub><b>Samaa Hazem</b></sub></a>
     </td>
     <td align="center">
     <a href="https://github.com/norhanreda" target="_black">
-    <img src="https://avatars.githubusercontent.com/u/88630231?v=4" width="150px;" alt="norhan reda"/>
+    <img src="https://avatars.githubusercontent.com/u/88630231?v=4" width="150px;" alt="Norhan Reda"/>
     <br />
     <sub><b>Norhan Reda</b></sub></a>
     </td>
     <td align="center">
     <a href="https://github.com/Hoda233" target="_black">
-    <img src="https://avatars.githubusercontent.com/u/77369927?v=4" width="150px;" alt="HodaGamal"/>
+    <img src="https://avatars.githubusercontent.com/u/77369927?v=4" width="150px;" alt="Hoda Gamal"/>
     <br />
     <sub><b>Hoda Gamal</b></sub></a>
     </td>
