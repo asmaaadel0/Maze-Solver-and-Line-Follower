@@ -8,7 +8,7 @@
 - [Schematic Design](#schematic-design)
 - [Speed Control APP](#app)
 - [Contributing](#contributing)
-- [License](#License)
+- [License](#license)
 
 ## About The Project
 
@@ -25,9 +25,9 @@ Our team, <em><b>Ninja</b></em>, developed this project as part of our Embedded 
 
 ## Schematic Design
 
-![Capture_1](https://github.com/asmaaadel0/Embedded-Systems/assets/72188665/0da2d473-9739-4582-82b3-252fe0d38580)
+![Capture_1](https://github.com/asmaaadel0/Embedded-Systems/assets/72188665/2f360ebb-bc28-4bf0-bc78-fafabb2a6169)
 
-![Capture_2](https://github.com/asmaaadel0/Embedded-Systems/assets/72188665/357bf46c-cd38-43e2-a8d4-83802ed5616b)
+![Capture_2](https://github.com/asmaaadel0/Embedded-Systems/assets/72188665/28abc2cb-436d-40e3-a2f1-be9c89de0733)
 
 
 ## Speed Control APP 🚗
@@ -51,13 +51,17 @@ if the car is on the straight line you will find a white circle inside the objec
 
 Line Follower 
 
-https://github.com/asmaaadel0/Embedded-Systems/assets/72188665/41535e3f-e985-457d-8889-eb1e91fb8130
+
+
+https://github.com/asmaaadel0/Embedded-Systems/assets/72188665/9e655b52-0ede-4d0a-a775-e17482c85610
 
 
 
 Maze [ Scanning ]: 
 
-https://github.com/asmaaadel0/Embedded-Systems/assets/72188665/b014d0f6-42d2-4a60-baab-a177c4c8f906
+
+
+https://github.com/asmaaadel0/Embedded-Systems/assets/72188665/73f66ddb-291e-4079-a758-6c613855b7e8
 
 
 ## Contributing
