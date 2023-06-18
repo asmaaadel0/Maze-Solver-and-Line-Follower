@@ -6,7 +6,7 @@
 - [features](#features)
 - [Demo](#demo)
 - [Schematic Design](#schematic-design)
-- [Speed Control APP](#app)
+- [Speed Control APP](#speed-control-app)
 - [Contributing](#contributing)
 - [License](#license)
 
