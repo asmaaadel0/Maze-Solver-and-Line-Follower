@@ -44,7 +44,8 @@ we used image processing techniques to control the speed which are </p>
 
 here is an example of our application detection 
 if the car is on the straight line you will find a white circle inside the object 
-![image](https://github.com/asmaaadel0/Embedded-Systems/assets/88630231/4706acf9-a7ba-453a-86ac-f5f15dca5f2a)
+![image](https://github.com/asmaaadel0/Embedded-Systems/assets/88630231/0c52c4a3-3ab3-465a-b15e-13fa484d8fc9)
+
 
 ## Demo
 
