@@ -29,7 +29,7 @@ Our team, <em><b>Ninja</b></em>, developed this project as part of our Embedded 
 ![Capture_2](https://github.com/asmaaadel0/Embedded-Systems/assets/72188665/357bf46c-cd38-43e2-a8d4-83802ed5616b)
 
 
-## Speed Control APP
+## Speed Control APP 🚗
 <p>the aim of this application is to control the speed of the car
 here we connect our application with Bluttooh if we detect the car and the car is on the staright line our Application sends '1'
 to the hardware so the hardware increase the speed and if we detect the can on the curve we send '0' so the hardware decrease the speed
