@@ -1,3 +1,5 @@
+//  sensors array: 1 -> white, 0 -> black
+#include <EEPROM.h>
 #define sensor_right1 4 // 8 far
 #define sensor_right2 8 // near
 #define sensor_midel 13
@@ -14,7 +16,7 @@
 #define IR_L A5  // 0 -> white, 1 -> black
 #define IR_R A4
 
-#define second_array_right_far 
+#define second_array_right_far
 #define second_array_right_near
 #define second_array_middle A0
 #define second_array_left_near
@@ -39,13 +41,28 @@ int rIsWhite = 0;
 int cIsWhite = 0;
 int llIsWhite = 0;
 int rrIsWhite = 0;
+String path = "";
 
 unsigned long lastRight = 0;
 
 unsigned int rotation_delay_ms = 200;
 
 long pos;
-int kam2 = 7000; ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////9000;
+int kam2 = 7000;
+
+String optimizeThePath(String path)
+{
+    Serial.println("Optimizing the path.");
+
+    path.replace("LBL", "S");
+    path.replace("LBS", "R");
+    path.replace("RBL", "B");
+    path.replace("SBS", "B");
+    path.replace("SBL", "R");
+    path.replace("LBR", "B");
+
+    return path;
+}
 
 int onLine()
 {
@@ -63,15 +80,8 @@ void rotateRight()
     int mincnt = kam2;
     while (mincnt > 0 || !onLine())
     { // to ask about the onLine
-        // while (!onLine()) {
         SpeedLogic(-1 * rot_speed, rot_speed);
-        // moveMotor2(speed, speed, -1, 1);
         mincnt--;
-        // pos = sensTrace();
-        // if (pos == B00000) {
-        //   rotate180();
-        //   break;
-        // }
     }
 }
 
@@ -83,14 +93,8 @@ void rotateLeft()
     int mincnt = kam2;
     while (mincnt > 0 || !onLine())
     {
-        // while ( !onLine()) {
         SpeedLogic(rot_speed, 0);
         mincnt--;
-        // pos = sensTrace();
-        // if (pos == B00000) {
-        //   rotate180();
-        //   break;
-        // }
     }
 }
 
@@ -102,19 +106,18 @@ bool rotate180(bool isRight = false)
     int mincnt = kam2 * 2;
     while (mincnt > 0 || !onLine())
     {
-      
-      // doaa & rufaida change here -----------------
-      // check if the right sensors read black before the car becomes online
-      if((digitalRead(IR_R) || digitalRead(IR_RR)) && isRight == false)
-      {
-        // return untill onlin 
-        while(!onLine()){
-           SpeedLogic(-1 * rot_speed - 10, rot_speed - 10);
+
+        // check if the right sensors read black before the car becomes online
+        if ((digitalRead(IR_R) || digitalRead(IR_RR)) && isRight == false)
+        {
+            // return untill onlin
+            while (!onLine())
+            {
+                SpeedLogic(-1 * rot_speed - 10, rot_speed - 10);
+            }
+            // then break
+            return false;
         }
-        // then break
-        return false;
-      }
-      // doaa & rufaida change here -----------------
 
         if (isRight)
             SpeedLogic(-1 * rot_speed, rot_speed);
@@ -128,6 +131,7 @@ int counter = 3000;
 int counter180 = 0;
 int currentTime = 0;
 int previousTime = 0;
+int end_counter = 0;
 void movecar2()
 {
 
@@ -144,76 +148,130 @@ void movecar2()
     bool RRR = digitalRead(IR_RR);
     bool LL_first_array = digitalRead(sensor_left2) ^ 1;
 
-    if (LL || LL_first_array)
+    if (pos == B11111 && LL && RR && RRR)
+    {
+        end_counter++;
+    }
+    else
+    {
+        end_counter = 0;
+        if (LL || LL_first_array)
+        {
+
+            SpeedLogic(0, 0);
+            delay(500);
+            rotateLeft();
+            if (strcmp(path[path.length() - 1], "L"))
+            {
+                path += "L";
+                path = optimizeThePath(path);
+            }
+
+            SpeedLogic(0, 0);
+            delay(rotation_delay_ms);
+        }
+
+        else if (RR && pos == B00000) // right rear far sensor & the 5 sensors are white
+        {
+
+            SpeedLogic(0, 0);
+            delay(500);
+            // let it scan whether it is in dead right or not by going left and right to make sure that no black line is there
+            SpeedLogic(rot_speed - 20, 0);
+            delay(400);
+            SpeedLogic(0, 0);
+            if (pos == B00000)
+            {
+                rotateRight();
+                if (strcmp(path[path.length() - 1], "R"))
+                {
+                    path += "R";
+                    path = optimizeThePath(path);
+                }
+
+                SpeedLogic(0, 0);
+                delay(rotation_delay_ms);
+            }
+        }
+
+        if (pos == B00000 && !LL && !RRR)
+        {
+            counter180++;
+        }
+        else
+        {
+            counter180 = 0;
+        }
+        if (counter180 == 65)
+        {
+
+            if (pos == B00000)
+            {
+                SpeedLogic(0, 0);
+                delay(500);
+                currentTime = millis();
+                bool if_back = rotate180(); // if_back variable is made for abdelrahman for the optimization path  // doaa & rufaida change here -----------------
+                SpeedLogic(0, 0);
+                previousTime = millis() - currentTime;
+                currentTime = millis();
+                while (pos != B00000)
+                {
+                    pos = sensTrace();
+                    SpeedLogic(0, rot_speed - 20);
+                }
+                rotate180(true);
+                SpeedLogic(0, 0);
+                currentTime = millis() - currentTime;
+                if (strcmp(path[path.length() - 1], "B"))
+                {
+                    path += "B";
+                    path = optimizeThePath(path);
+                }
+
+                if (currentTime < previousTime)
+                {
+                    rotate180();
+                }
+            }
+            counter180 = 0;
+        }
+    }
+}
+
+void replay()
+{
+
+    // TODO --> straight
+    pos = sensTrace();
+
+    sensLogic(pos);
+
+    bool LL = digitalRead(IR_L);
+    bool RR = digitalRead(IR_R);
+    bool C = digitalRead(sensor_midel) ^ 1;
+    bool L = digitalRead(sensor_left1) ^ 1;
+    bool R = digitalRead(sensor_right2) ^ 1;
+    bool RRR = digitalRead(IR_RR);
+    bool LL_first_array = digitalRead(sensor_left2) ^ 1;
+
+    if (path[i] == "L" && (LL || LL_first_array))
     {
         SpeedLogic(0, 0);
         delay(500);
         rotateLeft();
         SpeedLogic(0, 0);
         delay(rotation_delay_ms);
-        
+        i++;
     }
 
-    else if (RR && pos == B00000) // right rear far sensor & the 5 sensors are white
+    else if (path[i] == "R" && RR) // right rear far sensor & the 5 sensors are white
     {
-        // while(counter>=0){
-        //    pos = sensTrace();
-        //   sensLogic(pos);
-        //   counter--;
         SpeedLogic(0, 0);
         delay(500);
-        // doaa is trying something
-        // let it scan whether it is in dead right or not by going left and right to make sure that no black line is there
-        SpeedLogic(rot_speed - 20, 0);
-        delay(400);
+        rotateRight();
         SpeedLogic(0, 0);
-        if (pos == B00000)
-        {
-            rotateRight();
-            SpeedLogic(0, 0);
-            delay(rotation_delay_ms);
-        }
-    }
-
-    if (pos == B00000 && !LL && !RRR)
-    {
-        counter180++;
-    }
-    else
-    {
-        counter180 = 0;
-    }
-    if (counter180 == 65)
-    {
-        // try to rotate to left to check if it reads black line or not
-        // SpeedLogic(60, 0);
-        // delay(100);
-        // pos = sensTrace();
-        if (pos == B00000)
-        {
-            SpeedLogic(0, 0);
-            delay(500);
-            currentTime = millis();
-            bool if_back = rotate180();  // if_back variable is made for abdelrahman for the optimization path  // doaa & rufaida change here -----------------
-            SpeedLogic(0, 0);
-            previousTime = millis() - currentTime;
-            currentTime = millis();
-            while (pos != B00000)
-            {
-                pos = sensTrace();
-                // sensLogic(pos);
-                SpeedLogic(0, rot_speed - 20);
-            }
-            rotate180(true);
-            SpeedLogic(0, 0);
-            currentTime = millis() - currentTime;
-            if (currentTime < previousTime)
-            {
-                rotate180();
-            }
-            // Serial.println(counter180);
-        }
-        counter180 = 0;
+        delay(rotation_delay_ms);
+        i++;
     }
 }
 
@@ -347,7 +405,6 @@ long sensTrace()
         if (a[i] == HIGH)
             ret += (0x1 << i);
     }
-    // Serial.println(' ');
 
     return ret;
 }
@@ -371,13 +428,6 @@ void setup()
     digitalWrite(cA, HIGH);
     digitalWrite(cB, HIGH);
     digitalWrite(cC, HIGH);
-    //   pinMode(A5, OUTPUT);
-    // pinMode(A1, OUTPUT);
-    //   pinMode(A4, OUTPUT);
-
-    //   digitalWrite(A5, HIGH);
-    // digitalWrite(A1, HIGH);
-    //   digitalWrite(A4, LOW);
 
     analogWrite(c1, 0);
     analogWrite(c2, 0);
