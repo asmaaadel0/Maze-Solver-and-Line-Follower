@@ -6,6 +6,7 @@
 - [features](#features)
 - [Demo](#demo)
 - [Schematic Design](#schematic-design)
+- [Speed Control APP](#app)
 - [Contributing](#contributing)
 
 ## About The Project
@@ -27,6 +28,21 @@ Our team, <em><b>Ninja</b></em>, developed this project as part of our Embedded 
 
 ![Capture_2](https://github.com/asmaaadel0/Embedded-Systems/assets/72188665/357bf46c-cd38-43e2-a8d4-83802ed5616b)
 
+
+## Speed Control APP
+the aim of this application is to control the speed of the car
+here we connect our application with Bluttooh if we detect the car and the car is on the staright line our Application sends '1'
+to the hardware so the hardware increase the speed and if we detect the can on the curve we send '0' so the hardware decrease the speed
+we used image processing techniques to control the speed which are 
+1- using Hough transform to detect lines 
+2-apply dilation on hough transform results so the lines becomes wider
+3-detect the car (red color) to make it easy for us and to make the aplication faster we assumed that the car is always a red color detection
+4-then we check if the car is on the line so increase the speed else decrease 
+5-we have added some check conditons so it will send '1' or '0' if the state have changed not all the time
+
+here is an example of our application detection 
+if the car is on the straight line you will find a white circle inside the object 
+![image](https://github.com/asmaaadel0/Embedded-Systems/assets/88630231/4706acf9-a7ba-453a-86ac-f5f15dca5f2a)
 
 ## Demo
 
