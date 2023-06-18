@@ -8,6 +8,7 @@
 - [Schematic Design](#schematic-design)
 - [Speed Control APP](#app)
 - [Contributing](#contributing)
+- [License](#License)
 
 ## About The Project
 
@@ -62,3 +63,7 @@ https://github.com/asmaaadel0/Embedded-Systems/assets/72188665/b014d0f6-42d2-4a6
 
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 - If you have suggestions for adding or removing features, feel free to [open an issue](https://github.com/asmaaadel0/Embedded-Systems/issues/new) to discuss it.
+
+
+ ## License
+- The project is open source and released under the MIT License.
